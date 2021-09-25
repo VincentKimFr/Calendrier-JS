@@ -1,0 +1,299 @@
+<div id="simpocalendar">
+	<script type="text/javascript">
+		var simpocalendar = document.getElementById('simpocalendar');
+		(function getRPDate()
+		{
+			Stamp = new Date();
+
+			var
+			Hours, 
+			Mins, 
+			Seconds, 
+			Day, 
+			Month, 
+			Year,
+			Nb_parts,
+			Date_max,
+			
+			Second_part, 
+			Minute_part, 
+			Hour_part, 
+			Day_part, 
+			Month_part, 
+
+			Day_divisor,
+			Hour_Minute_divisor,
+			Second_divisor,
+			Year_corrector, 
+			Day_corrector, 
+			Speed_Hr_Min_sec,
+
+			IRL_Year_Ver,
+			IRL_Month_Ver,
+			IRL_Day_Ver,
+
+			IRL_Year_Forum,
+			IRL_Month_Forum,
+			IRL_Day_Forum,
+
+			IG_Year_Ver,
+			IG_Month_Ver,
+			IG_Day_Ver,
+
+			IG_Year_Forum,
+			IG_Month_Forum,
+			IG_Day_Forum,
+
+			Nb_Days_Previous_Month_IRL,
+			Nb_Days_Previous_Month_IG,
+
+			Str_out;
+
+			const
+			SPEED = 3,
+			CALENDAR_IRL_IG_BIRTH_YEAR = 2009,
+			CALENDAR_IRL_IG_MONTH_BIRTH = 6, //IRL date 1 to 12 : (1st) june 2009
+
+			FORUM_IRL_BIRTH_YEAR = 2003,
+			FORUM_IRL_BIRTH_MONTH = 5, //IRL date 1 to 12 : 15 may 2003
+			FORUM_IRL_BIRTH_DAY = 15,
+			
+			VERSION_IRL_BIRTH_YEAR = 2020,
+			VERSION_IRL_BIRTH_MONTH = 2, //IRL date 1 to 12 : 10 february 2020
+			VERSION_IRL_BIRTH_DAY = 10,
+			
+			VERSION_IG_BIRTH_YEAR = 2041,
+			VERSION_IG_BIRTH_MONTH = 4, //IRL date 1 to 12 : 29 april 2041
+			VERSION_IG_BIRTH_DAY = 29,
+
+			TMP_DAY = Stamp.getDate(),
+			TMP_MONTH = Stamp.getMonth() + 1, //0 to 11 + 1
+			TMP_YEAR = Stamp.getFullYear(),
+
+			FR_MONTH = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+			"Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+
+	        //MONTH
+	        Month_part = -2;
+	        if (TMP_DAY > 10 && TMP_DAY <= 20)
+	        	Month_part = -1;
+	        else if (TMP_DAY > 20 && TMP_DAY <= 31)
+	        	Month_part = 0;
+	        Month = (TMP_MONTH * SPEED + Month_part) % 12;
+	        if (Month == 0)
+	        	Month = 12;
+	        IG_Month_Ver = Month;
+	        IG_Month_Forum = Month;
+
+	        //YEARS
+	        if (TMP_MONTH < 5)
+	        	Year_corrector = 0;
+	        else if (TMP_MONTH >= 5 && TMP_MONTH < 9)
+	        	Year_corrector = 1;
+	        else
+	        	Year_corrector = 2;
+	        Year = TMP_YEAR * SPEED - (CALENDAR_IRL_IG_BIRTH_YEAR + CALENDAR_IRL_IG_MONTH_BIRTH / 12) * 2 + Year_corrector;
+
+	        //EXEPTIONNAL DAYS
+
+	        //Initialisation in case of no exeptions
+	        Nb_parts = SPEED;
+	        Date_max = TMP_DAY * SPEED;
+
+	        if ((TMP_DAY > 10) && (TMP_DAY < 20))
+	        	Date_max = (TMP_DAY - 10) * SPEED;
+	        else if ((TMP_DAY > 20) && (TMP_DAY < 30))
+	        	Date_max = (TMP_DAY - 20) * SPEED;
+	        else if ((TMP_DAY == 30) && (TMP_MONTH == 6 || TMP_MONTH == 11))
+	        	Date_max = (TMP_DAY - 20) * SPEED;
+
+	        //Days 20 ending by 30 IG
+	        if (TMP_DAY == 20)
+	        {
+	        	if (TMP_MONTH == 4 || TMP_MONTH == 8 || TMP_MONTH == 12)
+	        		Date_max = 30;
+	        }
+	        //Days 30 shift
+	        if (TMP_DAY == 30)
+	        {
+	            //ending by 30 (janv, mai, aout, décembre)
+	            if (TMP_MONTH == 1 || TMP_MONTH == 5 || TMP_MONTH == 8 || TMP_MONTH == 12)
+	            	Date_max = 30;
+	            // terminent par  29 (mars, juillet)
+	            if (TMP_MONTH == 3 || TMP_MONTH == 7)
+	            	Date_max = 29;
+	        }
+	        //Days 31 one RP day
+	        if (TMP_DAY == 31)
+	        {
+	        	Nb_parts = 1;
+	        	if (TMP_MONTH == 1 || TMP_MONTH == 5 || TMP_MONTH == 8 || TMP_MONTH == 12)
+	        		Date_max = 31;
+	        	else if (TMP_MONTH == 3 || TMP_MONTH == 7 || TMP_MONTH == 10)
+	        		Date_max = 30;
+	        }
+	        //IRL days with 4 RP days and ending by 31
+	        if (
+	        	(TMP_DAY == 10 && TMP_MONTH != 2 && TMP_MONTH != 6 && TMP_MONTH != 10)
+	        	|| (TMP_DAY == 20 &&  TMP_MONTH != 1 && TMP_MONTH != 4 && TMP_MONTH != 5 && TMP_MONTH != 8 && TMP_MONTH != 12)
+	        	|| (TMP_DAY == 30 && (TMP_MONTH == 4 || TMP_MONTH == 9))
+	        	)
+	        {
+	        	Nb_parts = 4;
+	        	Date_max = 31;
+	        }
+	        //IRL day with 2 RP days
+	        if (TMP_DAY == 30 && TMP_MONTH == 10)
+	        {
+	        	Nb_parts = 2;
+	        	Date_max = 29;
+	        }
+	        //If bissextile IRL, 28 and 29 february IRL
+	        if ((TMP_YEAR % 4 == 0 && TMP_YEAR % 100 != 0 && TMP_MONTH == 2) || ((TMP_YEAR % 400 == 0) && (TMP_MONTH == 2))) 
+	        {
+	        	if (TMP_DAY == 28 && TMP_MONTH == 2)
+	        		Date_max = 25;
+	        	else if (TMP_DAY == 29 && TMP_MONTH == 2)
+	        	{
+	        		Nb_parts = 5;
+	        		Date_max = 30;
+	        	}
+	        }
+	        else if (TMP_DAY == 28 && TMP_MONTH == 2)
+	        {
+	        	Nb_parts = 8;
+	        	Date_max = 30;
+	        }
+	        //If bissextile IG, 28 or 28-29 IRL
+	        if (TMP_DAY == 20 && (TMP_MONTH == 1 || TMP_MONTH == 5 || TMP_MONTH == 9))
+	        {
+	        	if ((Year % 4 == 0 && Year % 100 != 0 && Month == 2) || (Year % 400 == 0 && Month == 2))
+	        	{
+	        		Nb_parts = 2;
+	        		Date_max = 29;
+	        	}
+	        	else 
+	        	{
+	        		Nb_parts = 1;
+	        		Date_max = 28;
+	        	}
+	        }
+
+	        //CLASSICAL FORMULAS
+	        Day_divisor = 24 / Nb_parts;
+	        Hour_Minute_divisor = 60 / Nb_parts;
+	        Second_divisor = 1000 / Nb_parts;
+	        Day_corrector = Nb_parts - 1;
+	        Speed_Hr_Min_sec = Nb_parts;
+	        Month = FR_MONTH[Month - 1];
+
+	        //DAYS
+	        Day_part = Math.floor(Stamp.getHours() / Day_divisor) - Day_corrector;
+	        Day = Date_max + Day_part;
+	        if (Day < 10)
+	        	Day = "0" + Day;
+
+	        //SECONDS
+	        Second_part = Math.floor(Stamp.getMilliseconds() / Second_divisor);
+	        Seconds = (Stamp.getSeconds() * Speed_Hr_Min_sec + Second_part) % 60;
+	        if (Seconds < 10)
+	        	Seconds = "0" + Seconds;
+
+	        //MINUTES
+	        Minute_part = Math.floor(Stamp.getSeconds() / Hour_Minute_divisor);
+	        Mins = (Stamp.getMinutes() * Speed_Hr_Min_sec + Minute_part) % 60;
+	        if (Mins < 10)
+	        	Mins = "0" + Mins;
+
+	        //HOURS
+	        Hour_part = Math.floor(Stamp.getMinutes() / Hour_Minute_divisor);
+	        Hours = (Stamp.getHours() * Speed_Hr_Min_sec + Hour_part) % 24;
+	        if (Hours < 10)
+	        	Hours = "0" + Hours;
+
+	        //Since
+	        Nb_Days_Previous_Month_IRL = Math.ceil((new Date(TMP_YEAR, TMP_MONTH - 1, 1) - new Date(TMP_YEAR, TMP_MONTH - 2, 1)) / (1000*60*60*24));
+
+	        IRL_Year_Ver = TMP_YEAR - VERSION_IRL_BIRTH_YEAR;
+	        IRL_Month_Ver = (TMP_MONTH - VERSION_IRL_BIRTH_MONTH + 12) % 12;
+	        IRL_Day_Ver = (TMP_DAY - VERSION_IRL_BIRTH_DAY + Nb_Days_Previous_Month_IRL) % Nb_Days_Previous_Month_IRL;	        
+
+	        if (TMP_MONTH < VERSION_IRL_BIRTH_MONTH || (TMP_MONTH == VERSION_IRL_BIRTH_MONTH && TMP_DAY < VERSION_IRL_BIRTH_DAY))
+				IRL_Year_Ver--;
+			if (TMP_DAY < VERSION_IRL_BIRTH_DAY)
+				IRL_Month_Ver--;
+			if (IRL_Month_Ver === -1)
+				IRL_Month_Ver = 11;
+
+	        IRL_Year_Forum = TMP_YEAR - FORUM_IRL_BIRTH_YEAR;
+	        IRL_Month_Forum = (TMP_MONTH - FORUM_IRL_BIRTH_MONTH + 12) % 12;
+	        IRL_Day_Forum = (TMP_DAY - FORUM_IRL_BIRTH_DAY + Nb_Days_Previous_Month_IRL) % Nb_Days_Previous_Month_IRL;
+
+	        if (TMP_MONTH < FORUM_IRL_BIRTH_MONTH || (TMP_MONTH == FORUM_IRL_BIRTH_MONTH && TMP_DAY < FORUM_IRL_BIRTH_DAY))
+				IRL_Year_Forum--;
+			if (TMP_DAY < FORUM_IRL_BIRTH_DAY)
+				IRL_Month_Forum--;
+			if (IRL_Month_Forum === -1)
+				IRL_Month_Forum = 11;
+
+			Nb_Days_Previous_Month_IG = Math.ceil((new Date(Year, FR_MONTH.indexOf(Month), 1) - new Date(Year, FR_MONTH.indexOf(Month) - 1, 1)) / (1000*60*60*24));
+			
+	        IG_Year_Ver = Year - VERSION_IG_BIRTH_YEAR;
+	        IG_Month_Ver = (IG_Month_Ver - VERSION_IG_BIRTH_MONTH + 12) % 12;
+	        IG_Day_Ver = (Day - VERSION_IG_BIRTH_DAY + Nb_Days_Previous_Month_IG) % Nb_Days_Previous_Month_IG;
+
+			if ((FR_MONTH.indexOf(Month) + 1) < VERSION_IG_BIRTH_MONTH || ((FR_MONTH.indexOf(Month) + 1) == VERSION_IG_BIRTH_MONTH && Day < VERSION_IG_BIRTH_DAY))
+				IG_Year_Ver--;
+			if (Day < VERSION_IG_BIRTH_DAY)
+				IG_Month_Ver--;
+			if (IG_Month_Ver === -1)
+				IG_Month_Ver = 11;
+
+	        Str_out =  "<center>";
+	        Str_out += "    <div>";
+	        Str_out += "        <big>";
+	        //Debug BEGIN
+	        //Str_out += "TMP_MONTH : " + TMP_MONTH + ", FORUM_IRL_BIRTH_MONTH : " + FORUM_IRL_BIRTH_MONTH + ", TMP_DAY : " + TMP_DAY + ", VERSION_IRL_BIRTH_DAY : " + VERSION_IRL_BIRTH_DAY + "<br><br>";
+	        //Str_out += "Month : " + Month + ", Year : " + Year + "<br>";
+	        //Debug END
+	        Str_out += "            Nous sommes le ";
+	        Str_out += "            <font size=\"2\" face=\"Verdana\">";
+	        Str_out += "                <b>" + Day + " " + Month + " " + Year + "</b>";
+	        Str_out += "                 et il est ";
+	        Str_out += "                <b>" + Hours + "</b> Heures ";
+	        Str_out += "                <b>" + Mins + "</b> Minutes ";
+	        Str_out += "                <b>" + Seconds + "</b> Secondes";
+	        Str_out += "            </font>";
+	        Str_out += "            sur Simpolitique.";
+	        Str_out += "        </big>";
+	        Str_out += "        <br>(Calcul selon la date de votre ordinateur, en Originel Mean Time +00).";
+	        Str_out += "    </div>";
+	        Str_out += "    <br><font size=\"1\">La version actuelle de Simpolitique, la Version V, a été lancée le <b>10 Février 2020</b><br>";
+	        Str_out += "    <br><font size=\"1\">Elle remplace la version IV qui existait depuis le <b>7 août 2016</b> et a duré <b>3 ans et 6 mois</b><br>";
+	        Str_out += "    Qui remplaçait la Version III du jeu qui existait depuis <b>Juin 2009</b> et a duré <b>7 ans et 2 mois</b>.</font><br>";
+	        Str_out += "    <font size=\"1\" face=\"Verdana\">";
+	        Str_out += "        <br>Le Forum existe depuis ";
+	        Str_out += "        <b>" + IRL_Year_Forum + " années</b> ";
+	        Str_out +=          IRL_Month_Forum + " mois " + IRL_Day_Forum + " jours <b>IRL.</b><br>";
+	        Str_out += "        La Version V existe depuis ";
+	        Str_out += "        <b>" + IRL_Year_Ver + " années</b> ";
+	        Str_out +=          IRL_Month_Ver + " mois " + IRL_Day_Ver + " jours ";
+	        Str_out += "        <b>IRL</b><br>";
+	        Str_out += "        La Version V existe depuis ";
+	        Str_out += "        <b>" + IG_Year_Ver + " années</b> ";
+	        Str_out +=          IG_Month_Ver + " mois " + IG_Day_Ver + " jours ";
+	        Str_out += "        <b>In Game.</b>";
+	        Str_out += "    </font>";   
+	        Str_out += "</center>";
+
+	        simpocalendar.innerHTML = Str_out;
+	        
+	        setTimeout(
+	        	function()
+	        	{
+	        		getRPDate();
+	        	}, Math.floor(1000 / Speed_Hr_Min_sec)
+	        	);
+	    })();
+	</script>
+</div>
